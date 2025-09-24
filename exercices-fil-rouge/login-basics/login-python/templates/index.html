@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    {% if user %}
+        <div class="welcome-container">
+            <h1>Bienvenue, {{ user.login }} !</h1>
+            <div class="welcome-message">
+                <p>Vous êtes connecté avec succès !</p>
+                <p><strong>Email :</strong> {{ user.email }}</p>
+            </div>
+            <div class="nav-links">
+                <a href="/logout">🚪 Se déconnecter</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="welcome-container">
+            <h1>Bienvenue !</h1>
+            <p class="welcome-par">Il faut se connecter :/</p>
+            <div class="nav-links">
+                <a href="/login">Se connecter</a>
+                <a href="/register">S'inscrire</a>
+            </div>
+        </div>
+    {% endif %}
+</body>
+</html>
