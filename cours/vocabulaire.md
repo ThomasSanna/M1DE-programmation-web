@@ -37,3 +37,9 @@
 - Low-code : approche de développement d'applications web qui utilise des outils visuels et des composants préconstruits pour réduire la quantité de code à écrire, permettant ainsi aux développeurs de créer des applications plus rapidement
 - No-code : approche de développement d'applications web qui permet aux utilisateurs non techniques de créer des applications en utilisant des interfaces visuelles et des outils de glisser-déposer, sans avoir besoin de coder
 - CMS (Content Management System) : système de gestion de contenu qui permet de créer, gérer et publier du contenu sur un site web sans avoir besoin de connaissances en programmation (ex : WordPress, Joomla, Drupal)
+
+## Methode
+
+- Mode Classique : Coder sans se soucier de l'architecture
+- Mode MVD : ouai
+- Mode API : 

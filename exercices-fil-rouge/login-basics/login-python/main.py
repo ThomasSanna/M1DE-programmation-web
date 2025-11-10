@@ -1,5 +1,6 @@
 # main.py
 from fastapi import FastAPI, Form, Request, Depends, status
+import html
 from fastapi.responses import HTMLResponse, RedirectResponse # permettra de faire des redirections
 from fastapi.templating import Jinja2Templates # pour utiliser les templates Jinja2 pour les fichiers HTML (pip install jinja2)
 from fastapi.staticfiles import StaticFiles # pour servir les fichiers statiques (CSS, JS, images)
@@ -9,9 +10,9 @@ from psycopg.rows import dict_row # pour obtenir des résultats sous forme de di
 from starlette.middleware.sessions import SessionMiddleware # pour gérer les sessions utilisateur (pip install starlette)
 from datetime import datetime # c'est compris
 
-# === Config FastAPI ===
+# confi FastAPI
 app = FastAPI()
-app.add_middleware(SessionMiddleware, secret_key="une_clef_secrete_très_longue")
+app.add_middleware(SessionMiddleware, secret_key="eziuzhfeuihHIUZEFHIEUHhiauhu")
 
 
 # Servir les fichiers statiques (CSS, JS, images)
@@ -20,10 +21,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 modelesTemplates = Jinja2Templates(directory="templates")
 
-# === Config hachage ===
+# config hachage
 contextePassword = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# === Connexion PostgreSQL ===
+# connexion PostgreSQL
 def obtenirDb():
     with psycopg.connect(
         dbname="2025_M1",
@@ -35,27 +36,45 @@ def obtenirDb():
     ) as connexion:
         yield connexion # yield permet de retourner une valeur tout en garantissant que la connexion sera fermée après usage
 
-# === Utils ===
+# Fonctions utiles
 def verifierPassword(passwordClair, passwordHache):
+    """vérifie un mdp selon celui hashé
+
+    Args:
+        passwordClair: mdp envoyé par l'utilisateur
+        passwordHache: mdp haché
+
+    Returns:
+        Boolean: True ou False si le mot de passe est correct ou non
+    """
     return contextePassword.verify(passwordClair, passwordHache)
 
 def hacherPassword(password):
+    """Hacher le mot de passe
+
+    Args:
+        password : mot de passe
+
+    Returns:
+        mot de passe haché
+    """
     return contextePassword.hash(password)
 
 def creerSessionUtilisateur(request, utilisateur):
-    """Fonction utilitaire pour créer une session utilisateur"""
+    """Fonction pour créer une session utilisateur avec protection XSS"""
     request.session["user"] = {
         "id": utilisateur["user_id"], 
-        "login": utilisateur["user_login"], 
-        "email": utilisateur["user_mail"]
+        "login": html.escape(utilisateur["user_login"]), 
+        "email": html.escape(utilisateur["user_mail"])
     }
 
-# === Routes ===
-@app.get("/", response_class=HTMLResponse)
+# Routes
+@app.get("/", response_class=HTMLResponse)  # response_class=HTMLResponse : toutes les routes renverront HTML par défaut
 def accueil(request: Request):
     utilisateur = request.session.get("user")
     return modelesTemplates.TemplateResponse("index.html", {"request": request, "user": utilisateur})
 
+# login
 @app.get("/login", response_class=HTMLResponse)
 def formulaireConnexion(request: Request):
     utilisateur = request.session.get("user")
@@ -70,7 +89,7 @@ def connexion(request: Request, login: str = Form(...), password: str = Form(...
         if not utilisateur or not verifierPassword(password, utilisateur["user_password"]):
             return modelesTemplates.TemplateResponse("login.html", {"request": request, "error": "Login ou mot de passe incorrect"})
         
-        # Mise à jour de la date de dernière connexion
+        # Mise à jour de la date de dernière connexion dans la bdd
         baseDonnees.execute(
             "UPDATE \"user\" SET user_date_login = %s WHERE user_id = %s",
             (datetime.now(), utilisateur["user_id"])
@@ -81,7 +100,7 @@ def connexion(request: Request, login: str = Form(...), password: str = Form(...
         return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     
     except Exception as erreur:
-        baseDonnees.rollback()
+        baseDonnees.rollback() # annule le commit
         return modelesTemplates.TemplateResponse("login.html", {"request": request, "error": "Erreur de connexion"})
 
 @app.get("/logout")
@@ -89,7 +108,7 @@ def deconnexion(request: Request):
     request.session.clear()
     return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
-# === Exemple d'inscription rapide ===
+# INSCRIPTION
 @app.get("/register", response_class=HTMLResponse)
 def formulaireInscription(request: Request):
     utilisateur = request.session.get("user")
