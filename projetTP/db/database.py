@@ -1,0 +1,70 @@
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
+from datetime import datetime
+
+# Configuration de la base de données
+DATABASE_URL = "mysql+pymysql://root:@localhost:3306/dactylogame"
+
+engine = create_engine(DATABASE_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+# Models SQLAlchemy
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, nullable=False, index=True)
+    email = Column(String(100), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # Relations
+    game_sessions = relationship("GameSession", back_populates="user")
+    scores = relationship("Score", back_populates="user")
+
+
+class GameSession(Base):
+    __tablename__ = "game_sessions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    session_token = Column(String(64), unique=True, nullable=False, index=True)
+    words_sequence = Column(Text, nullable=False)  # JSON stringifié des mots
+    seed = Column(String(32), nullable=False)
+    start_time = Column(DateTime, default=datetime.now)
+    expected_end_time = Column(DateTime, nullable=False)
+    is_completed = Column(Boolean, default=False)
+    score_id = Column(Integer, ForeignKey("scores.id", ondelete="SET NULL"), nullable=True)
+    
+    # Relations
+    user = relationship("User", back_populates="game_sessions")
+    score = relationship("Score", back_populates="game_session", foreign_keys=[score_id])
+
+
+class Score(Base):
+    __tablename__ = "scores"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)  # Nullable pour les joueurs anonymes
+    score = Column(Integer, default=0)
+    words_correct = Column(Integer, default=0)
+    words_wrong = Column(Integer, default=0)
+    duration = Column(Integer, default=30, comment="Durée en secondes")
+    created_at = Column(DateTime, default=datetime.now)
+    
+    # Relations
+    user = relationship("User", back_populates="scores")
+    game_session = relationship("GameSession", back_populates="score", foreign_keys="GameSession.score_id")
+
+
+# Fonction pour obtenir une session de BDD
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

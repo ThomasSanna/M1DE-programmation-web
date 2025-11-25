@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dactylogame - Concours de dactylographie</title>
+  <link rel="stylesheet" href="./static/style.css">
+</head>
+<body onload="initApp()">
+  <h1 class="titre">Dactylogame</h1>
+  
+  <!-- Panneau d'authentification -->
+  <div class="auth-panel">
+    <div id="auth-logged-out" class="auth-section">
+      <button class="btn-auth" onclick="showLoginModal()">Connexion</button>
+      <button class="btn-auth" onclick="showRegisterModal()">Inscription</button>
+    </div>
+    <div id="auth-logged-in" class="auth-section" style="display: none;">
+      <span class="welcome-message">Bienvenue, <span id="username-display"></span>!</span>
+      <button class="btn-auth" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div class="classement-panel">
+    <a href="classement" class="btn-auth">Classement des goats</a>
+  </div>
+
+  <!-- Modal de connexion -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeLoginModal()">&times;</span>
+      <h2>Connexion</h2>
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="login-username">Nom d'utilisateur</label>
+          <input type="text" id="login-username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Mot de passe</label>
+          <input type="password" id="login-password" name="password" required>
+        </div>
+        <div class="form-error" id="login-error"></div>
+        <button type="submit" class="btn-submit">Se connecter</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal d'inscription -->
+  <div id="register-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeRegisterModal()">&times;</span>
+      <h2>Inscription</h2>
+      <form id="register-form" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="register-username">Nom d'utilisateur</label>
+          <input type="text" id="register-username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="register-email">Email</label>
+          <input type="email" id="register-email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="register-password">Mot de passe</label>
+          <input type="password" id="register-password" name="password" required minlength="6">
+        </div>
+        <div class="form-error" id="register-error"></div>
+        <button type="submit" class="btn-submit">S'inscrire</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="joueur">
+      <h1 class="toi">
+        Votre score : <span id="scoreJoueur">0</span>
+      </h1>
+      <div class="chrono"></div>
+      <div class="texte-cont">
+        <div id="textePlacer"></div>
+        <div class="basPage">
+          <button onclick="lancerPartie()" class="btnCommencer">Commencer</button>
+          <h1 class="startC"></h1>
+          <input placeholder="..." onkeyup="taptap()" id="texteEntrer" type="text">
+          <button class="btnRejouer btnPage" onclick="rejouer()">Rejouer</button>
+        </div> 
+      </div>
+    </div>
+    <div class="finPartie">
+      <div class="finPartDedans">
+        <div class="fermerFenFin" onclick="closeFinPartie()">x</div>
+        <div class="classement">
+          <h1 class="messageFin"></h1>
+          <h3 class="scoresFin"></h3>
+        </div>
+        <button class="btnRejouer" onclick="rejouer()">Rejouer</button>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script src="/static/script.js"></script>
+</html>

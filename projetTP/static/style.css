@@ -1,0 +1,352 @@
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+body{
+  height: 100vh;
+  padding: 20px;
+}
+.titre{
+  font-size: 4rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  margin: 20px;
+}
+.container{
+  display: flex;
+  justify-content: space-around;
+}
+.joueur{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.texte-cont{
+  margin: 20px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90vw;
+}
+#textePlacer{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  /* grid-template-columns: repeat(5, 1fr); */
+  max-height: 130px;
+  border-radius: 10px;
+  font-size: 2rem;
+  border: 1px solid ;
+  overflow-y: auto;
+  min-height: 100px;
+  padding: 20px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 90vw;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+#textePlacer span{
+  margin: 2px 10px;
+  padding: 3px;
+  text-align: center;
+  border-radius: 5px;
+}
+.texte-cont div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.texte-cont input{
+  font-size: 1.8rem;
+  padding: 5px;
+  width: 90vw;
+  max-width: 300px;
+  display: none;
+}
+.surligneVert{
+  background-color: rgb(124, 255, 124);
+}
+.surligneRouge{
+  background-color: rgb(255, 116, 116);
+}
+.enBorder{
+  border: 1px solid black;
+}
+.basPage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.launchButton{
+  cursor: pointer;
+  font-size: 1.8rem;
+  padding: 5px;
+  margin: 10px;
+}
+.chrono{
+  display: block;
+  font-size: 3rem;
+  margin: 10px;
+  height: 50px;
+}
+.btnRejouer{
+  font-size: 1.8rem;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.btnPage{
+  display: none;
+}
+
+.finPartie{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.641);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.finPartie .finPartDedans{
+  position: relative;
+  background-color: white;
+  padding: 50px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.fermerFenFin{
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  font-size: 2rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.classement{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+}
+.btnCommencer{
+  font-size: 1.8rem;
+  padding: 5px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.scoreJou{
+  font-size: 1.4rem;
+}
+
+/* change ONLY first child of scoresFin : */
+
+.scoresFin > *:first-child{
+  font-size: 1.7rem;
+  margin-bottom: 5px;
+}
+
+.scoresFin{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+}
+
+@media screen and (max-width: 600px) {
+  .titre{
+    font-size: 3rem;
+  }
+  #textePlacer {
+    max-height: 100px;
+  }
+  #textePlacer span{
+    font-size: 1.3rem;
+    margin: 2px 4px;
+  }
+  .joueur{
+    justify-content: flex-start;
+  }
+  .texte-cont{
+    margin: 5px 20px;
+  }
+  .chrono{
+    font-size: 1.9rem;
+    margin: 5px 10px;
+  }
+}
+
+/* === STYLES D'AUTHENTIFICATION (et panel classement) ================== */
+
+.classement-panel, .auth-panel {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-bottom: 8px;
+}
+
+.classement-panel a{
+  background-color: #ffea2a;
+  color: #e96900;
+  text-decoration: none;
+}
+
+.classement-panel a:hover{
+  color: #fff06e;
+  background-color: #e96900;
+
+}
+
+.auth-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.welcome-message {
+  font-size: 1rem;
+  color: #333;
+  margin-right: 10px;
+}
+
+.btn-auth {
+  padding: 8px 16px;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-auth:hover {
+  background-color: #0056b3;
+}
+
+/* Modaux d'authentification */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  max-width: 400px;
+  width: 90vw;
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+}
+
+/* Formulaires */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.form-error {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  min-height: 20px;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+  background-color: #007bff;
+}
+
+@media screen and (max-width: 600px) {
+  .classement-panel, .auth-panel{
+    padding: 10px;
+    background: none;
+    justify-content: center;
+  }
+}
