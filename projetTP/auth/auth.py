@@ -16,14 +16,14 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from db.database import get_db, User
 
-# Configuration du contexte de hachage des mots de passe
+# config du contexte de hachage des mots de passe
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Configuration OAuth2
+# xonfig OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login", auto_error=False)
 
-# Configuration JWT
-SECRET_KEY = "votre_cle_secrete_a_changer_en_production"  # À changer en production
+# config JWT
+SECRET_KEY = "LACLESIUJSDIDFOS"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 43200  # 30 jours
 
@@ -91,6 +91,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[Use
     Returns:
         L'objet User si l'authentification réussit, None sinon
     """
+    # requete : chercher un seul utilisateur avec ce nom d'utilisateur
     user = db.query(User).filter(User.username == username).first()
     
     if not user:
@@ -154,7 +155,7 @@ def get_current_user(
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Impossible de valider les informations d'identification",
+        detail="Infos d'auth invalides",
         headers={"WWW-Authenticate": "Bearer"},
     )
     

@@ -164,6 +164,7 @@ async function handleLogin(event) {
       saveAuthToken(data.access_token)
       await checkAuthStatus()
       closeLoginModal()
+      window.location.reload()
     } else {
       const error = await response.json()
       document.getElementById('login-error').textContent = error.detail || 'Erreur lors de la connexion'
@@ -201,6 +202,7 @@ async function handleRegister(event) {
       saveAuthToken(data.access_token)
       await checkAuthStatus()
       closeRegisterModal()
+      window.location.reload()
     } else {
       const error = await response.json()
       document.getElementById('register-error').textContent = error.detail || 'Erreur lors de l\'inscription'

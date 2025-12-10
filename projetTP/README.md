@@ -1,72 +1,105 @@
-# Dactylogame - README
+# Projet TP - Developpement Web : Dactylogame
 
-## Présentation
-
-**Dactylogame** est un jeu de dactylographie multijoueur simple implémenté en utilisant FastAPI pour le côté serveur et WebSocket pour la communication en temps réel entre les clients. Le jeu met au défi les joueurs de taper rapidement des mots aléatoires, et les scores sont mis à jour en temps réel. Le projet se compose d'un serveur FastAPI (`main.py`) et d'un fichier JavaScript côté client (`script.js`).
+Ce projet est une application web de dactylogame développée avec FastAPI pour le backend et HTML/CSS/JavaScript pour le frontend. L'application permet aux utilisateurs de s'inscrire, de se connecter, de jouer à un jeu de dactylographie et de suivre leurs scores. Le projet inclut également des fonctionnalités d'authentification sécurisée avec JWT.
 
 ## Fonctionnalités
 
-- **Jeu de Dactylographie Multijoueur :** Les joueurs peuvent rejoindre une session de jeu, rivaliser les uns contre les autres en tapant des mots, et voir leurs scores mis à jour en temps réel.
+- Inscription et connexion des utilisateurs
+- Jeu de dactylographie avec génération aléatoire de texte utilisant le fichier json "frequence.json" accessible [ici](https://github.com/nmondon/mots-frequents/blob/7b5b62125a1724cdd12a1a145764dfc177ed39f1/data/frequence.json#L1).
+- Suivi des scores des utilisateurs et affichage du classement
 
-- **Communication WebSocket :** WebSocket est utilisé pour la communication bidirectionnelle entre le serveur et les clients, permettant des mises à jour en temps réel et la synchronisation de l'état du jeu.
+## Installation
 
-- **Mises à Jour Dynamiques de l'UI :** L'interface utilisateur se met à jour dynamiquement en fonction des messages WebSocket, offrant une expérience utilisateur fluide et réactive.
+1. Cloner le dépôt :
+   ```bash
+   git clone https://github.com/ThomasSanna/M1DE-programmation-web.git
+   cd M1DE-programmation-web/projetTP
+   ```
+2. Créer un environnement virtuel et l'activer :
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Sur Windows : venv\Scripts\activate
+   ```
+3. Installer les dépendances :
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Démarrer l'application :
+   ```bash
+   uvicorn main:app --reload
+   ```
 
-## Structure du Projet
+## Spécificités base de données
 
-- **`main.py` :** L'implémentation du serveur FastAPI avec des points d'extrémité WebSocket pour gérer la logique du jeu, les connexions des joueurs et les mises à jour en temps réel.
+Utilisation de MySQL pour la gestion des utilisateurs, des sessions de jeu, et des scores. SQLAlchemy est utilisé comme ORM pour interagir avec la base de données.
 
-- **`script.js` :** Le fichier JavaScript côté client responsable de la gestion des messages WebSocket, de la mise à jour de l'interface utilisateur et de la gestion des interactions des joueurs.
+### Tables + Dictionnaire de données
 
-- Les autres fichiers incluent des dépendances, des fichiers statiques et des modèles HTML pour l'interface utilisateur.
+#### Tables principales
 
-## Démarrage
+| Table           | Description                                 |
+|-----------------|---------------------------------------------|
+| `users`         | Stocke les informations des utilisateurs    |
+| `scores`        | Enregistre les scores des parties           |
+| `game_sessions` | Gère les sessions de jeu en cours           |
 
-1. **Cloner le Dépôt :**
-    ```bash
-    git clone https://github.com/ThomasSanna/reseaux_python
-    cd  reseaux_python/ProtocolesWeb/exercice-5-dactylogame
-    ```
+#### Dictionnaire de données
 
-2. **Installer les Dépendances :**
-    ```bash
-    pip install fastapi uvicorn
-    ```
+##### `users`
 
-3. **Lancer le Serveur :**
-    ```bash
-    uvicorn main:app --reload
-    ```
+| Champ          | Type           | Description                                 |
+|----------------|----------------|---------------------------------------------|
+| id             | int(11)        | Identifiant unique (PK, auto-incrémenté)    |
+| username       | varchar(50)    | Nom d'utilisateur (unique)                  |
+| email          | varchar(100)   | Email de l'utilisateur (unique)             |
+| password_hash  | varchar(255)   | Hash du mot de passe                        |
+| created_at     | timestamp      | Date de création                            |
+| updated_at     | timestamp      | Date de dernière modification               |
 
-4. **Ouvrir dans le Navigateur :**
-   - Ouvrez votre navigateur web et accédez à `http://localhost:8000`.
-   - Les joueurs peuvent rejoindre le jeu en accédant à cette URL.
+##### `scores`
 
-## Comment Jouer
+| Champ         | Type         | Description                                  |
+|---------------|--------------|----------------------------------------------|
+| id            | int(11)      | Identifiant unique (PK, auto-incrémenté)     |
+| user_id       | int(11)      | Référence à l'utilisateur (FK)               |
+| score         | int(11)      | Score obtenu                                 |
+| words_correct | int(11)      | Nombre de mots corrects                      |
+| words_wrong   | int(11)      | Nombre de mots incorrects                    |
+| duration      | int(11)      | Durée de la partie (en secondes)             |
+| created_at    | timestamp    | Date de création du score                    |
 
-1. **Rejoindre le Jeu :**
-   - Accédez à l'URL fournie (`http://localhost:8000`) dans votre navigateur web.
-   - Vous recevrez un numéro de joueur et verrez les autres joueurs connectés.
+##### `game_sessions`
 
-2. **Début du Jeu :**
-   - Une fois que tous les joueurs sont connectés, le jeu peut être démarré en cliquant sur le bouton "Commencer".
-   - Un compte à rebours commencera, et le jeu démarrera après le compte à rebours.
+| Champ           | Type         | Description                                 |
+|-----------------|--------------|---------------------------------------------|
+| id              | int(11)      | Identifiant unique (PK, auto-incrémenté)    |
+| user_id         | int(11)      | Référence à l'utilisateur (FK)              |
+| session_token   | varchar(64)  | Token unique de session                     |
+| words_sequence  | text         | Séquence de mots pour la session            |
+| seed            | varchar(32)  | Graine utilisée pour la génération          |
+| start_time      | timestamp    | Début de la session                         |
+| expected_end_time | timestamp  | Fin prévue de la session                    |
+| is_completed    | tinyint(1)   | Session terminée (0/1)                      |
+| score_id        | int(11)      | Référence au score associé (FK, nullable)   |
 
-3. **Défi de Dactylographie :**
-   - Tapez les mots affichés le plus rapidement possible.
-   - Les mots correctement tapés augmentent votre score.
+#### Vues
 
-4. **Fin du Jeu :**
-   - Le jeu se termine après un temps défini.
-   - Les scores finaux et le gagnant sont affichés.
+- **`v_leaderboard`** : Vue pour le classement général, calculant le WPM (mots/minute) et la précision pour chaque score.
+- **`v_user_stats`** : Vue pour les statistiques globales par utilisateur (nombre de parties, meilleur score, moyenne, précision, etc.).
 
-5. **Rejouer :**
-   - Les joueurs peuvent choisir de rejouer en cliquant sur le bouton "Rejouer".
+#### Contraintes et index
 
-## Notes Additionnelles
+- Clés primaires sur les identifiants (`id`)
+- Clés étrangères pour relier `scores` et `game_sessions` à `users`
+- Index sur les champs de recherche fréquente (`username`, `email`, `score`, etc.)
+- Unicité sur `username`, `email` et `session_token`
 
-- Le projet utilise un simple fichier JSON (`frequence.json`) contenant des mots français pour le défi de dactylographie. Vous pouvez modifier ou remplacer ce fichier pour personnaliser l'ensemble de mots.
+#### Exemple de relations
 
-- Pour le développement, envisagez de lancer le serveur avec l'option `--reload` pour activer le rechargement automatique du code lors des modifications.
+- Un utilisateur peut avoir plusieurs scores et sessions de jeu.
+- Une session de jeu appartient à un utilisateur et peut référencer un score.
+- Les suppressions d'utilisateur entraînent la suppression en cascade de ses scores et sessions.
 
-N'hésitez pas à explorer et à modifier le code pour ajouter de nouvelles fonctionnalités ou personnaliser davantage le jeu !
+### Autres informations
+
+Pour 

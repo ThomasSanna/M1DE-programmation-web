@@ -9,7 +9,7 @@ DATABASE_URL = "mysql+pymysql://root:@localhost:3306/dactylogame"
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
+Base = declarative_base() # permettra de créer les modèles
 
 # Models SQLAlchemy
 class User(Base):
@@ -23,7 +23,10 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
     # Relations
+    # relationship permet de lier une table à une autre dans le but de faciliter les jointures.
+    # la mise en place des foreign keys dans les autres tables permet de faire le lien entre les tables.
     game_sessions = relationship("GameSession", back_populates="user")
+    # au dessus, il faudra mettre un foreign key dans l'attribut user_id de la table GameSession pour que l'ORM comprenne automatiquement le lien entre les deux tables.
     scores = relationship("Score", back_populates="user")
 
 

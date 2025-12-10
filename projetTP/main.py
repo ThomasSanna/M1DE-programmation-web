@@ -196,7 +196,7 @@ def start_game(
         data = json.load(f)
     
     # Générer un texte aléatoire
-    nb_mots = random.randint(30, 50)
+    nb_mots = 50
     texte_arr = []
     for _ in range(nb_mots):
         mot = random.choice(data)['label']
