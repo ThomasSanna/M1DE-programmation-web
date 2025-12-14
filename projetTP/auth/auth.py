@@ -91,7 +91,7 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[Use
     Returns:
         L'objet User si l'authentification réussit, None sinon
     """
-    # requete : chercher un seul utilisateur avec ce nom d'utilisateur
+    # requete : chercher un seul utilisateur ayant ce nom d'utilisateur
     user = db.query(User).filter(User.username == username).first()
     
     if not user:
@@ -122,6 +122,9 @@ def get_current_user_optional(
         return None
     
     try:
+        # ex token: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMCIsImV4cCI6MTc2ODMyMDg1Mn0.sJvEML1HnBlAbkBHaA0wRaWY0ETkvUIXq8BhMcVMmvM
+        # ex payload : payload {'sub': '10', 'exp': 1768320852}. "exp" est la date d'expiration du token.
+        # user_id : 10
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
         

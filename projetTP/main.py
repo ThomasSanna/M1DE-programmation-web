@@ -203,8 +203,10 @@ def start_game(
         texte_arr.append(mot)
     
     # Créer une session unique
-    session_token = str(uuid.uuid4())
+    session_token = str(uuid.uuid4()) ## ressemblera à un truc du genre https://www.uuidgenerator.net/version4 ("f47ac10b-58cc-4372-a567-0e02b2c3d479")
+    # On ne pourra "jamais" obtenir deux uuid identiques (122 bits aléatoires réels donc environ 5,32*10^36 possibilités (c'est beaucoup))
     seed = str(random.randint(100000, 999999))
+    # la seed permettra de régénérer la même suite de mot au besoin
     
     # Créer la session en BDD (avec ou sans user_id)
     new_session = GameSession(
@@ -230,7 +232,7 @@ def start_game(
 @app.post("/api/check-word")
 def check_word(data: WordCheck, db: Session = Depends(get_db)):
     """
-    Vérifie si le mot tapé est correct.
+    Vérifie si le mot est tapé est correct.
     Cette route fonctionne avec ou sans authentification.
     
     Args:
@@ -337,16 +339,22 @@ def ranking(db: Session = Depends(get_db), current_user: Optional[User] = Depend
     """
     from sqlalchemy import func
 
-    # Meilleur score par user_id (inclut user_id == None)
+    # On récupère pour chauqe users, sont score le plus haut
+    # Equivalent en SQL :
+    # SELECT user_id, max(score) as "best_score"
+    # FROM scores
+    # GROUP BY user_id
     bests = db.query(Score.user_id, func.max(Score.score).label('best_score'))\
               .group_by(Score.user_id).all()
+    # bests ressemble à:
+    # [(None, 24), (5, 8), (7, 21), (8, 21), (10, 23)]
 
-    # Build a mapping user_id -> best_score
     best_map = {row.user_id: row.best_score for row in bests}
+    # best_map ressemble à {None: 24, 5: 8, 7: 21, 8: 21, 10: 23}
 
     results = []
 
-    # Add concrete users (user_id != None) with usernames
+    # Retrouver les usernames selon les ids des joueurs
     if best_map:
         user_ids = [uid for uid in best_map.keys() if uid is not None]
         if user_ids:
@@ -354,11 +362,11 @@ def ranking(db: Session = Depends(get_db), current_user: Optional[User] = Depend
             for u in users:
                 results.append({
                     'user_id': u.id,
-                    'username': u.username if u.username else 'Inconnu',
+                    'username': u.username,
                     'best_score': int(best_map.get(u.id, 0))
                 })
 
-    # Handle anonymous players (user_id is None) as one entry named 'Inconnu'
+    # les joueurs sans id sont marqués avec un username "Inconnu"
     anon_best = best_map.get(None)
     if anon_best is not None:
         results.append({
@@ -367,15 +375,24 @@ def ranking(db: Session = Depends(get_db), current_user: Optional[User] = Depend
             'best_score': int(anon_best)
         })
 
-    # Sort descending by score
+    """
+    results ressemble à :
+    [
+        {'user_id': 5, 'username': 'testtest', 'best_score': 8},
+        {'user_id': 7, 'username': 'hjddhsdij', 'best_score': 21},
+        {'user_id': 8, 'username': 'Arlette', 'best_score': 21}, 
+        ...
+    ]
+    """
+
+    # Tri du plus grand au plus petit selon le score
     results.sort(key=lambda x: x['best_score'], reverse=True)
 
-    # Build ranking positions
+    # Construction du ranking : les gens avec le même score sont placés dans la même place
     ranked = []
     rank = 0
     last_score = None
     for item in results:
-        # Dense ranking: same score -> same rank
         if last_score is None or item['best_score'] != last_score:
             rank += 1
             last_score = item['best_score']
@@ -383,24 +400,28 @@ def ranking(db: Session = Depends(get_db), current_user: Optional[User] = Depend
             'rank': rank,
             **item
         })
+        
+    """
+    ranked ressemble à :
+    [
+        {'rank': 1, 'user_id': None, 'username': 'Inconnu', 'best_score': 24}, 
+        {'rank': 2, 'user_id': 10, 'username': 'jdk', 'best_score': 23}, 
+        {'rank': 3, 'user_id': 7, 'username': 'hjddhsdij', 'best_score': 21}
+    ]
+    """
 
-    # Find current user position
+    # Trouver la position du joueur qui est allé voir le classement
     current_info = None
     if current_user:
-        # Find best score for current user (maybe not in results yet)
+        # essayer de trouver le score du joueur connect
         your_best = best_map.get(current_user.id)
-        if your_best is None:
-            # user exists but has no scores
+        if your_best is None: # si le joueur n'a pas encore de score
             current_info = {'user_id': current_user.id, 'username': current_user.username or 'Inconnu', 'best_score': 0, 'rank': None}
         else:
-            # find rank
             for r in ranked:
                 if r['user_id'] == current_user.id:
                     current_info = r
                     break
-    print(current_info)
-    print(ranked)
-    
     return {
         'ranking': ranked,
         'current_user': current_info

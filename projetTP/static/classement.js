@@ -1,3 +1,5 @@
+// Appel de la data du classement
+// Return : Données du classement si l'appel a réussi (json || null) 
 async function fetchRanking() {
   try {
     const response = await fetch('/api/ranking', {
@@ -15,14 +17,29 @@ async function fetchRanking() {
   }
 }
 
+// Créer le rendu HTML du classement
+// Entrée : 
+//   - containerSelector (str): l'id/la classe HTML pour retrouver la div à modifier
+//   - data (json || null): données  du classement
+
+// Exemple de data :
+// {
+//   'ranking': [
+//     {'rank': 1, 'user_id': None, 'username': 'Inconnu', 'best_score': 24}, 
+//     {'rank': 2, 'user_id': 10, 'username': 'jdk', 'best_score': 23}, 
+//     {'rank': 3, 'user_id': 7, 'username': 'hjddhsdij', 'best_score': 21},
+//     ...
+//   ], 
+//   'current_user': {'rank': 2, 'user_id': 10, 'username': 'jdk', 'best_score': 23}
+// }
+
 function renderRanking(containerSelector, data) {
   if (!data) return
 
   const container = document.querySelector(containerSelector)
   if (!container) return
 
-  container.innerHTML = ''
-
+  container.innerHTML = '' 
 
   if (data.current_user) {
     const you = data.current_user
@@ -50,6 +67,8 @@ function renderRanking(containerSelector, data) {
   container.appendChild(table)
 }
 
+// Fonction permettant d'échapper les caractères spéciaux permettant d'établir une faille XSS
+// Source de la fonction : ggorlen sur stackoverflow
 function escapeHtml(text){
   return String(text).replace(/[&"'<>]/g, function(m){return {'&':'&amp;','"':'&quot;',"'":"&#39;","<":"&lt;",">":"&gt;"}[m]})
 }
