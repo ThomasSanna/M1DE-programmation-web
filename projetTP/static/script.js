@@ -317,7 +317,7 @@ function taptap(){
       .then(response => response.json())
       .then(data => {
         if(data.correct){
-          motWin.push("indexTexte")
+          motWin.push(indexTexte)
           score++
         } else {
           motLost.push(indexTexte)
