@@ -6,7 +6,7 @@ from datetime import datetime
 # Configuration de la base de données
 DATABASE_URL = "mysql+pymysql://root:@localhost:3306/dactylogame"
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base() # permettra de créer les modèles

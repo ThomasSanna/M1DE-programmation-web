@@ -81,11 +81,8 @@ Utilisation de MySQL pour la gestion des utilisateurs, des sessions de jeu, et d
 | expected_end_time | timestamp  | Fin prévue de la session                    |
 | is_completed    | tinyint(1)   | Session terminée (0/1)                      |
 | score_id        | int(11)      | Référence au score associé (FK, nullable)   |
-
-#### Vues
-
-- **`v_leaderboard`** : Vue pour le classement général, calculant le WPM (mots/minute) et la précision pour chaque score.
-- **`v_user_stats`** : Vue pour les statistiques globales par utilisateur (nombre de parties, meilleur score, moyenne, précision, etc.).
+| words_correct_count | int(11)  | Nombre de mots corrects |
+| words_wrong_count   | int(11)  | Nombre de mots incorrect |
 
 #### Contraintes et index
 

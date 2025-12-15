@@ -189,8 +189,11 @@ def start_game(
         Un objet contenant l'ID de session et le texte à taper
     """
     # Charger le fichier JSON des mots
-    with open('static/frequence.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open('static/frequence.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        raise HTTPException(status_code=500, detail="Fichier de mots introuvable")
     
     # Générer un texte aléatoire
     nb_mots = 50
@@ -259,7 +262,7 @@ def check_word(data: WordCheck, db: Session = Depends(get_db)):
     mot_attendu = texte_arr[data.index]
     is_correct = data.word == mot_attendu
     
-    # Incrémenter les compteurs côté serveur (sécurisé)
+    # Incrémenter les compteurs côté serveur
     if is_correct:
         session.words_correct_count += 1
     else:
@@ -302,7 +305,7 @@ def end_game(data: GameEnd, db: Session = Depends(get_db)):
     if duration > 35:  # Tolérance de 5 secondes
         duration = 30
     
-    # Calculer le score côté serveur (SÉCURISÉ - ne peut pas être modifié par le client)
+    # Calculer le score côté serveur
     final_score = session.words_correct_count
     
     # Créer le score en BDD
