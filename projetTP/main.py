@@ -61,9 +61,6 @@ class WordCheck(BaseModel):
 
 class GameEnd(BaseModel):
     session_id: str
-    words_correct: int
-    words_wrong: int
-    final_score: int
 
 @app.get("/")
 def read_root():
@@ -254,18 +251,21 @@ def check_word(data: WordCheck, db: Session = Depends(get_db)):
     if session.is_completed:
         raise HTTPException(status_code=400, detail="Session déjà terminée")
     
-    # Récupérer la séquence de mots
     texte_arr = json.loads(session.words_sequence)
     
     if data.index >= len(texte_arr):
         raise HTTPException(status_code=400, detail="Index hors limites")
     
-    # Vérifier si le mot est correct
     mot_attendu = texte_arr[data.index]
     is_correct = data.word == mot_attendu
     
-    # On ne stocke pas encore le score ici, on le fera à la fin de la partie
-    # On retourne juste la validation
+    # Incrémenter les compteurs côté serveur (sécurisé)
+    if is_correct:
+        session.words_correct_count += 1
+    else:
+        session.words_wrong_count += 1
+    
+    db.commit()
     
     return {
         'correct': is_correct,
@@ -302,13 +302,16 @@ def end_game(data: GameEnd, db: Session = Depends(get_db)):
     if duration > 35:  # Tolérance de 5 secondes
         duration = 30
     
+    # Calculer le score côté serveur (SÉCURISÉ - ne peut pas être modifié par le client)
+    final_score = session.words_correct_count
+    
     # Créer le score en BDD
     # user_id sera NULL pour les sessions anonymes, ou l'ID de l'utilisateur connecté
     new_score = Score(
         user_id=session.user_id,  # Peut être NULL pour les joueurs anonymes
-        score=data.final_score,
-        words_correct=data.words_correct,
-        words_wrong=data.words_wrong,
+        score=final_score,
+        words_correct=session.words_correct_count,
+        words_wrong=session.words_wrong_count,
         duration=duration,
         created_at=datetime.now()
     )
@@ -323,9 +326,9 @@ def end_game(data: GameEnd, db: Session = Depends(get_db)):
     db.commit()
     
     return {
-        'score': data.final_score,
-        'words_correct': data.words_correct,
-        'words_wrong': data.words_wrong,
+        'score': final_score,
+        'words_correct': session.words_correct_count,
+        'words_wrong': session.words_wrong_count,
         'duration': duration
     }
 

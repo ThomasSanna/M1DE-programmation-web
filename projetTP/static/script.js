@@ -1,6 +1,4 @@
-/**
- * Initialise l'application au chargement de la page
- */
+// Fonction lancée au chargement de la page : Initialise l'application (jeu + auth)
 async function initApp() {
   // Charge le token depuis le localStorage
   loadAuthToken()
@@ -10,9 +8,7 @@ async function initApp() {
   randomText()
 }
 
-/**
- * Variables globales pour la gestion du jeu
- */
+// var globales pour le jeu
 let indexTexte = 0
 let motWin = []
 let motLost = []
@@ -21,41 +17,31 @@ let texte = ""
 let score = 0
 let sessionId = null
 
-/**
- * Variables globales pour la gestion de l'authentification
- */
+// var globales pour l'auth
 let currentUser = null
 let authToken = null
 
 
-// ================== FONCTIONS D'AUTHENTIFICATION ==================
+// --------- FONCTIONS AUTH ------
 
-/**
- * Charge le token d'authentification depuis le localStorage
- */
+// charge le token d'auth depuis le localStorage
 function loadAuthToken() {
   authToken = localStorage.getItem('authToken')
 }
 
-/**
- * Sauvegarde le token d'authentification dans le localStorage
- */
+// Met le token d'auth dans le localStorage
 function saveAuthToken(token) {
   authToken = token
   localStorage.setItem('authToken', token)
 }
 
-/**
- * Supprime le token d'authentification du localStorage
- */
+// Clear le token d'auth 
 function clearAuthToken() {
   authToken = null
   localStorage.removeItem('authToken')
 }
 
-/**
- * Vérifie le statut d'authentification de l'utilisateur
- */
+// vérifie si l'utilisateur est connecté
 async function checkAuthStatus() {
   if (!authToken) {
     updateUIForLoggedOut()
@@ -83,9 +69,7 @@ async function checkAuthStatus() {
   }
 }
 
-/**
- * Met à jour l'interface pour un utilisateur connecté
- */
+// Met à jour l'interface quand connecté
 function updateUIForLoggedIn() {
   const loggedOutEl = document.getElementById('auth-logged-out');
   const loggedInEl = document.getElementById('auth-logged-in');
@@ -96,9 +80,7 @@ function updateUIForLoggedIn() {
   if (usernameEl) usernameEl.textContent = currentUser.username;
 }
 
-/**
- * Met à jour l'interface pour un utilisateur non connecté
- */
+// mets l'interface en mode déconnecté
 function updateUIForLoggedOut() {
   const loggedOutEl = document.getElementById('auth-logged-out');
   const loggedInEl = document.getElementById('auth-logged-in');
@@ -107,41 +89,31 @@ function updateUIForLoggedOut() {
   currentUser = null
 }
 
-/**
- * Affiche le modal de connexion
- */
+// Affiche le modal de connexion
 function showLoginModal() {
   document.getElementById('login-modal').style.display = 'flex'
   document.getElementById('login-error').textContent = ''
 }
 
-/**
- * Ferme le modal de connexion
- */
+// ferme le modal de connexion
 function closeLoginModal() {
   document.getElementById('login-modal').style.display = 'none'
   document.getElementById('login-form').reset()
 }
 
-/**
- * Affiche le modal d'inscription
- */
+// Affiche le modal d'inscription
 function showRegisterModal() {
   document.getElementById('register-modal').style.display = 'flex'
   document.getElementById('register-error').textContent = ''
 }
 
-/**
- * Ferme le modal d'inscription
- */
+// ferme le modal d'inscription
 function closeRegisterModal() {
   document.getElementById('register-modal').style.display = 'none'
   document.getElementById('register-form').reset()
 }
 
-/**
- * Gère la soumission du formulaire de connexion
- */
+// Traite la connexion
 async function handleLogin(event) {
   event.preventDefault()
   
@@ -175,9 +147,7 @@ async function handleLogin(event) {
   }
 }
 
-/**
- * Gère la soumission du formulaire d'inscription
- */
+// traite l'inscription
 async function handleRegister(event) {
   event.preventDefault()
   
@@ -213,9 +183,7 @@ async function handleRegister(event) {
   }
 }
 
-/**
- * Déconnecte l'utilisateur
- */
+// Déconnecte l'utilisateur
 function logout() {
   clearAuthToken()
   updateUIForLoggedOut()
@@ -224,23 +192,17 @@ function logout() {
 
 // ================== FONCTIONS DE JEU ==================
 
-/**
- * Lance une nouvelle partie
- */
+// lance une partie
 function lancerPartie(){
   launchGame()
 }
 
-/**
- * Recharge la page pour rejouer
- */
+// Recharge la page pour rejouer
 function rejouer(){
   window.location.reload()
 }
 
-/**
- * Démarre le compte à rebours et le jeu
- */
+// démarre le chrono et le jeu
 function launchGame(){
   document.querySelector('.btnCommencer').style.display = 'none'
 
@@ -269,9 +231,7 @@ function launchGame(){
   }, 1000);
 }
 
-/**
- * Termine la partie et envoie les résultats au serveur
- */
+// Termine la partie et envoie les stats
 function finPartie(){
   document.querySelector('.chrono').innerHTML = ""
   document.querySelector('#texteEntrer').style.display = 'none'
@@ -279,7 +239,7 @@ function finPartie(){
   document.querySelector('.finPartie').style.display = 'flex'
   document.querySelector('.btnPage').style.display = 'flex'
 
-  // Envoyer la fin de partie au serveur avec les statistiques
+  // Envoyer la fin de partie au serveur (le score est calculé côté serveur, sécurisé)
   fetch("/api/end-game", {
     method: 'POST',
     headers: {
@@ -287,10 +247,7 @@ function finPartie(){
       ...(authToken && { 'Authorization': `Bearer ${authToken}` })
     },
     body: JSON.stringify({
-      session_id: sessionId,
-      words_correct: motWin.length,
-      words_wrong: motLost.length,
-      final_score: score
+      session_id: sessionId
     })
   })
     .then(response => response.json())
@@ -305,23 +262,18 @@ function finPartie(){
     })
 }
 
-/**
- * Convertit un tableau de mots en chaîne de caractères
- */
+// convertit tableau de mots en chaîne
 function arrToString(arr){
   return arr.join(' ')
 }
 
-/**
- * Convertit une chaîne de caractères en tableau de mots
- */
+// Convertit chaîne en tableau de mots
+// ex: "Bonjour à tous" => ["Bonjour", "à", "tous"]
 function stringToArr(str){
   return str.split(' ')
 }
 
-/**
- * Récupère un texte aléatoire depuis le serveur et initialise une nouvelle partie
- */
+// demande un texte aléatoire et init la partie
 function randomText(){
   fetch("/api/start-game", {
     method: 'POST',
@@ -343,9 +295,7 @@ function randomText(){
     })
 }
 
-/**
- * Gère la saisie de l'utilisateur et la validation des mots
- */
+// Gère la saisie et valide les mots
 function taptap(){
   if(event.key == ' ' || event.key == 'Enter'){
     let texteEntrer = document.querySelector('#texteEntrer')
@@ -367,7 +317,7 @@ function taptap(){
       .then(response => response.json())
       .then(data => {
         if(data.correct){
-          motWin.push(indexTexte)
+          motWin.push("indexTexte")
           score++
         } else {
           motLost.push(indexTexte)
@@ -383,9 +333,7 @@ function taptap(){
   }
 }
 
-/**
- * Affiche le texte avec la coloration des mots corrects/incorrects
- */
+// affiche texte avec couleurs mots
 function affichageTexte(){
   let textePlacer = document.querySelector('#textePlacer')
   let textePlacerArr = []
@@ -403,9 +351,7 @@ function affichageTexte(){
   textePlacer.innerHTML = arrToString(textePlacerArr)
 }
 
-/**
- * Ferme le panneau de fin de partie
- */
+// Ferme le panneau de fin de partie
 function closeFinPartie(){
   document.querySelector('.finPartie').style.display = 'none'
 }

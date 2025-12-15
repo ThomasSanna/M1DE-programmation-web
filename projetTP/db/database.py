@@ -42,6 +42,8 @@ class GameSession(Base):
     expected_end_time = Column(DateTime, nullable=False)
     is_completed = Column(Boolean, default=False)
     score_id = Column(Integer, ForeignKey("scores.id", ondelete="SET NULL"), nullable=True)
+    words_correct_count = Column(Integer, default=0)  # Compteur sécurisé côté serveur
+    words_wrong_count = Column(Integer, default=0)  # Compteur sécurisé côté serveur
     
     # Relations
     user = relationship("User", back_populates="game_sessions")

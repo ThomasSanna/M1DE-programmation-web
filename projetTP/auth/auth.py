@@ -123,8 +123,6 @@ def get_current_user_optional(
     
     try:
         # ex token: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMCIsImV4cCI6MTc2ODMyMDg1Mn0.sJvEML1HnBlAbkBHaA0wRaWY0ETkvUIXq8BhMcVMmvM
-        # ex payload : payload {'sub': '10', 'exp': 1768320852}. "exp" est la date d'expiration du token.
-        # user_id : 10
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("sub")
         

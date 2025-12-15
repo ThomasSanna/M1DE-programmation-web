@@ -36,7 +36,9 @@ CREATE TABLE `game_sessions` (
   `start_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `expected_end_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `is_completed` tinyint(1) DEFAULT 0,
-  `score_id` int(11) DEFAULT NULL
+  `score_id` int(11) DEFAULT NULL,
+  `words_correct_count` int(11) NOT NULL DEFAULT 0 COMMENT 'Compteur sécurisé côté serveur',
+  `words_wrong_count` int(11) NOT NULL DEFAULT 0 COMMENT 'Compteur sécurisé côté serveur'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
